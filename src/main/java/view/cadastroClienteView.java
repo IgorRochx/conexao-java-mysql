@@ -14,6 +14,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import javax.swing.JOptionPane;
+import dao.CadastroDao;
+import modelo.Cadastro;
 
 
 /**
@@ -30,6 +32,11 @@ public class cadastroClienteView extends javax.swing.JFrame {
     public cadastroClienteView() {
         initComponents();
         configurarMascaras();
+        jbSalvar4.addActionListener(this::jbSalvar4ActionPerformed);
+        btnAlterar.addActionListener(this::btnAlterarActionPerformed);
+        btnExcluir.addActionListener(this::btnExcluirActionPerformed);
+        btnPesquisar.addActionListener(this::btnPesquisarActionPerformed);
+        btnNovo.addActionListener(this::btnNovoActionPerformed);
         
     }
          
@@ -165,7 +172,7 @@ public class cadastroClienteView extends javax.swing.JFrame {
         jlUfEstado = new javax.swing.JLabel();
         jlCep = new javax.swing.JLabel();
         jlLimiteCredito = new javax.swing.JLabel();
-        jbSalvar = new javax.swing.JButton();
+        btnExcluir = new javax.swing.JButton();
         jftLimiteCredito = new javax.swing.JFormattedTextField();
         jftCep = new javax.swing.JFormattedTextField();
         jftCidade = new javax.swing.JFormattedTextField();
@@ -176,6 +183,10 @@ public class cadastroClienteView extends javax.swing.JFrame {
         jftCpf = new javax.swing.JFormattedTextField();
         jftDataNascimento = new javax.swing.JFormattedTextField();
         jftTelefone = new javax.swing.JFormattedTextField();
+        btnPesquisar = new javax.swing.JButton();
+        btnAlterar = new javax.swing.JButton();
+        btnNovo = new javax.swing.JButton();
+        jbSalvar4 = new javax.swing.JButton();
 
         jFormattedTextField1.setText("jFormattedTextField1");
 
@@ -247,7 +258,7 @@ public class cadastroClienteView extends javax.swing.JFrame {
 
         jlLimiteCredito.setText("Limite de Crédito:");
 
-        jbSalvar.setText("Salvar");
+        btnExcluir.setText("Excluir");
 
         jftLimiteCredito.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -262,6 +273,15 @@ public class cadastroClienteView extends javax.swing.JFrame {
         });
 
         jftBairro.addActionListener(this::jftBairroActionPerformed);
+
+        btnPesquisar.setText("Pesquisar");
+
+        btnAlterar.setText("Alterar");
+
+        btnNovo.setText("Limpar");
+
+        jbSalvar4.setText("Salvar");
+        jbSalvar4.addActionListener(this::jbSalvar4ActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -323,9 +343,21 @@ public class cadastroClienteView extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jlUfEstado))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jftRua)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(0, 0, Short.MAX_VALUE)
+                                        .addComponent(btnNovo)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnPesquisar)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnExcluir)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnAlterar))
+                                    .addComponent(jftRua))
                                 .addGap(18, 18, 18)
-                                .addComponent(jftUf, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jbSalvar4)
+                                    .addComponent(jftUf, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jftCidade, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -334,11 +366,7 @@ public class cadastroClienteView extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jlLimiteCredito)
                             .addComponent(jftLimiteCredito, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jbSalvar)
-                        .addGap(8, 8, 8)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -396,9 +424,14 @@ public class cadastroClienteView extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jftCidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jftLimiteCredito, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
-                .addComponent(jbSalvar)
-                .addGap(21, 21, 21))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnExcluir)
+                    .addComponent(btnPesquisar)
+                    .addComponent(btnAlterar)
+                    .addComponent(btnNovo)
+                    .addComponent(jbSalvar4))
+                .addGap(15, 15, 15))
         );
 
         pack();
@@ -424,7 +457,7 @@ public class cadastroClienteView extends javax.swing.JFrame {
 
     private void jftLimiteCreditoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jftLimiteCreditoKeyPressed
         if (evt.getExtendedKeyCode() == KeyEvent.VK_ENTER) {
-            jbSalvar.requestFocus();
+            btnExcluir.requestFocus();
         }
     }//GEN-LAST:event_jftLimiteCreditoKeyPressed
 
@@ -453,6 +486,121 @@ public class cadastroClienteView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jtEmailKeyPressed
 
+    private void jbSalvar4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbSalvar4ActionPerformed
+        try {
+        Cadastro cadastro = new Cadastro();
+        cadastro.setNomeCad(jtNomeCompleto.getText().trim());
+        cadastro.setCpf(jftCpf.getText().trim());
+        cadastro.SetSexo(jcGenero.getSelectedItem().toString());
+        cadastro.setEmail(jtEmail.getText().trim());
+
+        CadastroDao cadastroDao = new CadastroDao();
+        cadastroDao.inserir(cadastro);
+
+        JOptionPane.showMessageDialog(this, "Cliente salvo com sucesso!");
+        limparCampos();
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Erro ao salvar cliente: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void btnAlterarActionPerformed(java.awt.event.ActionEvent evt) {
+    try {
+        if (jtIdCodigo.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe o ID/Código para alterar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Cadastro cadastro = new Cadastro();
+        cadastro.setIdCad(Integer.parseInt(jtIdCodigo.getText().trim()));
+        cadastro.setNomeCad(jtNomeCompleto.getText().trim());
+        cadastro.setCpf(jftCpf.getText().trim());
+        cadastro.SetSexo(jcGenero.getSelectedItem().toString());
+        cadastro.setEmail(jtEmail.getText().trim());
+
+        CadastroDao cadastroDao = new CadastroDao();
+        cadastroDao.alterar(cadastro);
+
+        JOptionPane.showMessageDialog(this, "Cadastro alterado com sucesso!");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Erro ao alterar cadastro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {
+    try {
+        if (jtIdCodigo.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe o ID/Código para excluir.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int id = Integer.parseInt(jtIdCodigo.getText().trim());
+        int confirmacao = JOptionPane.showConfirmDialog(this, 
+                "Tem certeza que deseja excluir o cliente ID " + id + "?", 
+                "Confirmar Exclusão", JOptionPane.YES_NO_OPTION);
+
+        if (confirmacao == JOptionPane.YES_OPTION) {
+            CadastroDao cadastroDao = new CadastroDao();
+            cadastroDao.excluirID(id);
+            JOptionPane.showMessageDialog(this, "Cliente excluído com sucesso!");
+            limparCampos();
+        }
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Erro ao excluir cliente: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void btnPesquisarActionPerformed(java.awt.event.ActionEvent evt) {
+    try {
+        String busca = jtNomeCompleto.getText().trim();
+        CadastroDao cadastroDao = new CadastroDao();
+        java.util.ArrayList<Cadastro> lista = cadastroDao.consultar(busca);
+
+        if (!lista.isEmpty()) {
+            Cadastro c = lista.get(0); // Exibe o primeiro encontrado
+            jtIdCodigo.setText(String.valueOf(c.getIdCad()));
+            jtNomeCompleto.setText(c.getNomeCad());
+            jftCpf.setText(c.getCpf());
+            jtEmail.setText(c.getEmail());
+            jcGenero.setSelectedItem(c.getSexo());
+        } else {
+            JOptionPane.showMessageDialog(this, "Nenhum cadastro encontrado com este nome.", "Busca", JOptionPane.INFORMATION_MESSAGE);
+        }
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Erro ao buscar cadastro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {
+    limparCampos();
+}
+
+private void limparCampos() {
+    jtIdCodigo.setText("");
+    jtNomeCompleto.setText("");
+    jftCpf.setText("");
+    jftDataNascimento.setText("");
+    jtEmail.setText("");
+    jftTelefone.setText("");
+    jcGenero.setSelectedIndex(0);
+    jcEstadoCivil.setSelectedIndex(0);
+    jftCep.setText("");
+    jftRua.setText("");
+    jftBairro.setText("");
+    jftCidade.setText("");
+    jftUf.setText("");
+    jftLimiteCredito.setText("");
+    jtNomeCompleto.requestFocus();
+}
+}
+}
+}
+
+
+
+
+
+
+
+
+    }//GEN-LAST:event_jbSalvar4ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -479,9 +627,13 @@ public class cadastroClienteView extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAlterar;
+    private javax.swing.JButton btnExcluir;
+    private javax.swing.JButton btnNovo;
+    private javax.swing.JButton btnPesquisar;
     private javax.swing.JFormattedTextField jFormattedTextField1;
     private javax.swing.JFormattedTextField jFormattedTextField6;
-    private javax.swing.JButton jbSalvar;
+    private javax.swing.JButton jbSalvar4;
     private javax.swing.JComboBox<String> jcEstadoCivil;
     private javax.swing.JComboBox<String> jcGenero;
     private javax.swing.JFormattedTextField jftBairro;
