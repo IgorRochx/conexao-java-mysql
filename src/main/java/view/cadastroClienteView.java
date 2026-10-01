@@ -494,37 +494,32 @@ public class cadastroClienteView extends javax.swing.JFrame {
         cadastro.SetSexo(jcGenero.getSelectedItem().toString());
         cadastro.setEmail(jtEmail.getText().trim());
 
-        CadastroDao cadastroDao = new CadastroDao();
-        cadastroDao.inserir(cadastro);
+        if (jtIdCodigo.getText().trim().isEmpty()){
 
-        JOptionPane.showMessageDialog(this, "Cliente salvo com sucesso!");
+            CadastroDao.Inserir(cadastro);
+            JOptionPane.showMessageDialog(this, "Cliente inserido com sucesso!");
+        } else {
+            cadastro.setIdCad(Integer.parseInt(jtIdCodigo.getText().trim()));
+            CadastroDao.alterar(cadastro);
+            JOptionPane.showMessageDialog(this, "Cliente alterado com sucesso!");
+        }
+
         limparCampos();
     } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Erro ao salvar cliente: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-    }
+            JOptionPane.showMessageDialog(this, "Erro ao salvar cadastro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+
 
     private void btnAlterarActionPerformed(java.awt.event.ActionEvent evt) {
     try {
+        // Verifica se há um ID preenchido antes de permitir alterar
         if (jtIdCodigo.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Informe o ID/Código para alterar.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        Cadastro cadastro = new Cadastro();
-        cadastro.setIdCad(Integer.parseInt(jtIdCodigo.getText().trim()));
-        cadastro.setNomeCad(jtNomeCompleto.getText().trim());
-        cadastro.setCpf(jftCpf.getText().trim());
-        cadastro.SetSexo(jcGenero.getSelectedItem().toString());
-        cadastro.setEmail(jtEmail.getText().trim());
-
-        CadastroDao cadastroDao = new CadastroDao();
-        cadastroDao.alterar(cadastro);
-
-        JOptionPane.showMessageDialog(this, "Cadastro alterado com sucesso!");
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Erro ao alterar cadastro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        jbSalvar4ActionPerformed(evt); // Reutiliza o método de salvar para alterar
     }
-
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {
     try {
         if (jtIdCodigo.getText().trim().isEmpty()) {
