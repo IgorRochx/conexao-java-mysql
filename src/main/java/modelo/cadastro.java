@@ -1,7 +1,7 @@
 package modelo;
 
 public class Cadastro {
-    
+    //criamos o molde, uma ficha de dados na memoria
     private int idcad;
     private String nomecad;
     private String cpf;
@@ -13,13 +13,14 @@ public class Cadastro {
     private int numSexualidade;
     private String foto;
     
-    public Cadastro() {
+    public Cadastro() { //construtor vazio para ir preenchendo os dados um por um
     }
     
     public Cadastro(String nomecad, String cpf, String sexo, String email) {
-        this.nomecad = nomecad;
+        this.nomecad = nomecad;  //esse construtor é para quando já temos todos os dados e queremos criar um objeto de uma vez só
+                                // ele pede todos os dados necessários para criar um objeto Cadastro, ao inves de um por um
         this.cpf = cpf;
-        this.sexo = sexo;
+        this.sexo = sexo; //this distingue a variavel do parametro, pois tem o mesmo nome
         this.email = email;        
     }
 
@@ -46,11 +47,12 @@ public class Cadastro {
     public void setTotalCadastros(int numCadastros) { this.numCadastros = numCadastros; }
 
     public int getSomaCodigos() { return somaCodigos; }
-    public void SetSomaCodigos(int somaCodigos) { this.somaCodigos = somaCodigos; }
+    public void setSomaCodigos(int somaCodigos) { this.somaCodigos = somaCodigos; }
 
     public int getNumSexualidade() { return numSexualidade; }
-    public void SetNumSexualidade(int numSexualidade) { this.numSexualidade = numSexualidade; }
+    public void setNumSexualidade(int numSexualidade) { this.numSexualidade = numSexualidade; }
 
     public String getFoto() { return foto; }
     public void setFoto(String foto) { this.foto = foto; }
 }
+

@@ -95,9 +95,8 @@ public class CadastroDao implements DaoGenerica<Cadastro> {
     @Override
     public ArrayList<Cadastro> consultar() {
         ArrayList<Cadastro> listaCadastros = new ArrayList<>();
-        String sql = "SELECT c.idcad, c.nomecad, c.cpf, c.email, s.nomesexo " +
-                     "FROM cadbasico AS c " +
-                     "LEFT JOIN cadsexo AS s ON (s.idsexo = c.idsexo) " +  
+        String sql = "SELECT c.idcad, c.nomecad, c.cpf, c.email, c.sexo " +
+                     "FROM cadbasico as c " +
                      "ORDER BY c.idcad";
         
         try {
@@ -159,13 +158,13 @@ public class CadastroDao implements DaoGenerica<Cadastro> {
         }
     }
 
-    @Override
+  @Override
     public ArrayList<Cadastro> dashboard() {
-        ArrayList<Cadastro> listarDashBoard = new ArrayList<>();
-        String sql = "SELECT FLOOR(RAND() * (10 - 5 + 1) * 10) AS numcad, " +
-                     "FLOOR(RAND() * (10 - 5 + 1) * 10) AS sumcad, " +
-                     "FLOOR(RAND() * (10 - 5 + 1) * 10) AS numsexualidade";
-        
+        ArrayList<Cadastro> listarDashBoard = new ArrayList<Cadastro>();
+        String sql = "SELECT FLOOR( RAND( ) * ( 10 -5 +1 ) *10 ) AS numcad, " +
+                     "FLOOR( RAND( ) * ( 10 -5 +1 ) *10 ) AS sumcad, " +
+                     "FLOOR( RAND( ) * ( 10 -5 +1 ) *10 ) AS numsexualidade";
+
         try {
             if (this.conexao.conectar()) {
                 PreparedStatement sentenca = this.conexao.getConnection().prepareStatement(sql);
@@ -174,9 +173,9 @@ public class CadastroDao implements DaoGenerica<Cadastro> {
                 while (resultadoSentenca.next()) {
                     Cadastro cadastro = new Cadastro();
                     cadastro.setTotalCadastros(resultadoSentenca.getInt("numcad"));
-                    cadastro.SetSomaCodigos(resultadoSentenca.getInt("sumcad"));
-                    cadastro.SetNumSexualidade(resultadoSentenca.getInt("numsexualidade"));
-                    
+                    cadastro.setSomaCodigos(resultadoSentenca.getInt("sumcad"));     // 's' minúsculo
+                    cadastro.setNumSexualidade(resultadoSentenca.getInt("numsexualidade")); // 's' minúsculo
+
                     listarDashBoard.add(cadastro);
                 }
 
@@ -187,5 +186,4 @@ public class CadastroDao implements DaoGenerica<Cadastro> {
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
-    }
-}
+}}

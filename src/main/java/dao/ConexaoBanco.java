@@ -22,20 +22,21 @@ public class ConexaoBanco {
     public ConexaoBanco(){
         this.servidor = "177.220.142.20";
         this.banco = "grupo04_igor";
-        this.usuario = "grupo06";
+        this.usuario = "grupo04";
         this.senha = "woyOlFfNNOdBOCE9@";
     }
     
-    public boolean conectar(){
-        try
-        {
-            this.conexao = DriverManager.getConnection("jdbc:mysql://"+this.servidor+"/"+this.banco,this.usuario,this.senha);
-            return true;
-        }
-        catch(SQLException ex){
-            throw new RuntimeException(ex);
-        }
+public boolean conectar(){
+    try {
+        // Adicionada a porta :3306 e o parâmetro de SSL desativado
+        String url = "jdbc:mysql://" + this.servidor + ":3306/" + this.banco + 
+                     "?useSSL=false&allowPublicKeyRetrieval=true";
+        this.conexao = DriverManager.getConnection(url, this.usuario, this.senha);
+        return true;
+    } catch(SQLException ex){
+        throw new RuntimeException(ex);
     }
+}
     
     public Connection getConnection(){
         return conexao;

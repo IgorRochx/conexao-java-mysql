@@ -4,7 +4,6 @@
  */
 package view;
 
-
 import java.awt.event.KeyEvent;
 import java.text.ParseException;
 import javax.swing.text.DefaultFormatterFactory;
@@ -16,7 +15,8 @@ import java.net.http.HttpResponse;
 import javax.swing.JOptionPane;
 import dao.CadastroDao;
 import modelo.Cadastro;
-
+import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
 
 /**
  *
@@ -37,63 +37,69 @@ public class cadastroClienteView extends javax.swing.JFrame {
         btnExcluir.addActionListener(this::btnExcluirActionPerformed);
         btnPesquisar.addActionListener(this::btnPesquisarActionPerformed);
         btnNovo.addActionListener(this::btnNovoActionPerformed);
-        
+
+        CadastroDao cadastroDao = new CadastroDao();
+        atualizaTabela(cadastroDao);
     }
          
-     private void configurarMascaras() {
-         jftCpf.setFormatterFactory(criarFabricaMascara("###.###.###-##")); // Mudar para Formatted Field nome: jftCpf
-         jftDataNascimento.setFormatterFactory(criarFabricaMascara("##/##/####")); // Mudar para Formatted Field nome: jftDataNascimento
-         jftTelefone.setFormatterFactory(criarFabricaMascara("(##) #####-####")); // Mudar para Formatted Field nome: jftTelefone
-         jftCep.setFormatterFactory(criarFabricaMascara("#####-###"));
-     }
+    private void configurarMascaras() {
+        jftCpf.setFormatterFactory(criarFabricaMascara("###.###.###-##"));
+        jftDataNascimento.setFormatterFactory(criarFabricaMascara("##/##/####"));
+        jftTelefone.setFormatterFactory(criarFabricaMascara("(##) #####-####"));
+        jftCep.setFormatterFactory(criarFabricaMascara("#####-###"));
+    }
+
+    private void limparCampos() {
+        jtIdCodigo.setText("");
+        jtNomeCompleto.setText("");
+        jftCpf.setText("");
+        jftDataNascimento.setText("");
+        jtEmail.setText("");
+        jftTelefone.setText("");
+        jcGenero.setSelectedIndex(0);
+        jcEstadoCivil.setSelectedIndex(0);
+        jftCep.setText("");
+        jftRua.setText("");
+        jftBairro.setText("");
+        jftCidade.setText("");
+        jftUf.setText("");
+        jftLimiteCredito.setText("");
+        jtNomeCompleto.requestFocus();
+    }
     
-     private DefaultFormatterFactory criarFabricaMascara(String mascara) {
-         try {
-             MaskFormatter mf = new MaskFormatter(mascara);
-             mf.setPlaceholderCharacter('_');
-             return new DefaultFormatterFactory(mf);
-         } catch (ParseException e) {
-             e.printStackTrace();
-             return new DefaultFormatterFactory();
-         }
-     }
+    private DefaultFormatterFactory criarFabricaMascara(String mascara) {
+        try {
+            MaskFormatter mf = new MaskFormatter(mascara);
+            mf.setPlaceholderCharacter('_');
+            return new DefaultFormatterFactory(mf);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return new DefaultFormatterFactory();
+        }
+    }
+
     private void buscarCep() {
-        
-        // Pega o texto digitado no campo CEP e remove tudo que NÃO for número.
-        // A expressão "[^0-9]" significa "qualquer caractere que não seja de 0 a 9".
-        // Assim, se o usuário digitar "85900-000", vira "85900000".
         String cep = jftCep.getText().replaceAll("[^0-9]", "");
         
-        // Todo CEP brasileiro tem exatamente 8 dígitos.
-        // Se não tiver, avisa o usuário e para a execução do método com "return".
-        if(cep.length() != 8){
-            JOptionPane.showMessageDialog(this, "Digite um CEP válido com 8 número.",
+        if (cep.length() != 8) {
+            JOptionPane.showMessageDialog(this, "Digite um CEP válido com 8 números.",
                     "CEP inválido", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
         try {
-            // Cria o "cliente HTTP", que é quem sabe conversar com sites da internet.
             HttpClient cliente = HttpClient.newHttpClient();
             
-            // Monta a requisição (o "pedido") que será enviado ao site.
-            // A URL do ViaCEP segue sempre o padrão:
-            // https://viacep.com.br/ws/SEUCEP/json/
-            // O .GET() indica que queremos BUSCAR dados (e não enviar).
             HttpRequest requisicao = HttpRequest.newBuilder()
                     .uri(URI.create("https://viacep.com.br/ws/" + cep + "/json/"))
                     .GET()
-                    .build(); //Finaliza a montagem da requisição 
+                    .build();
             
-            // Envia a requisição e espera a resposta do site.
-            // BodyHandlers.ofString() significa: "quero a resposta em formato de texto".
             HttpResponse<String> resposta = cliente.send(requisicao,
                     HttpResponse.BodyHandlers.ofString());
             
-            // Pega só o "corpo" da resposta, que é o texto JSON com os dados.
             String json = resposta.body();
             
-            // Quando o CEP não existe, o ViaCEP responde assim: {"erro": true}
             if (json.contains("\"erro\"")) {
                 JOptionPane.showMessageDialog(this, "CEP não encontrado.",
                         "Aviso", JOptionPane.WARNING_MESSAGE);
@@ -101,7 +107,6 @@ public class cadastroClienteView extends javax.swing.JFrame {
                 return;
             }
             
-            // Agora extraímos cada informação do JSON
             jftRua.setText(pegarValor(json, "logradouro"));
             jftBairro.setText(pegarValor(json, "bairro"));
             jftCidade.setText(pegarValor(json, "localidade"));
@@ -114,15 +119,10 @@ public class cadastroClienteView extends javax.swing.JFrame {
         }
     }
     
-    //Extrai um valor de dentro do texto JSON
     private String pegarValor(String json, String campo) {
-        // Monta o texto que vamos procurar. Para o campo "bairro",
         String procura = "\"" + campo + "\":";
-        // indexOf devolve a POSIÇÃO onde o texto foi encontrado.
-        // Se devolver -1, significa que não encontrou nada.
         int inicio = json.indexOf(procura);
         
-        // Se o campo não existir no JSON, devolve texto vazio para não dar erro.
         if (inicio == -1) {
             return "";
         }
@@ -133,14 +133,13 @@ public class cadastroClienteView extends javax.swing.JFrame {
         return json.substring(inicio, fim);
     }
     
-    // Usado quando o CEP não é encontrado, para apagar dados de uma
-    // busca anterior que ficaram na tela.
-    private void limparEndereco(){
+    private void limparEndereco() {
         jftRua.setText("");
         jftBairro.setText("");
         jftCidade.setText("");
         jftUf.setText("");
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -187,6 +186,8 @@ public class cadastroClienteView extends javax.swing.JFrame {
         btnAlterar = new javax.swing.JButton();
         btnNovo = new javax.swing.JButton();
         jbSalvar4 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        Tb01 = new javax.swing.JTable();
 
         jFormattedTextField1.setText("jFormattedTextField1");
 
@@ -283,6 +284,34 @@ public class cadastroClienteView extends javax.swing.JFrame {
         jbSalvar4.setText("Salvar");
         jbSalvar4.addActionListener(this::jbSalvar4ActionPerformed);
 
+        Tb01.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "idcad", "nomecad", "cpf", "email", "sexo"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                true, true, true, false, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(Tb01);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -343,21 +372,20 @@ public class cadastroClienteView extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jlUfEstado))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(0, 0, Short.MAX_VALUE)
-                                        .addComponent(btnNovo)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnPesquisar)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnExcluir)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnAlterar))
-                                    .addComponent(jftRua))
+                                .addComponent(jftRua)
                                 .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jbSalvar4)
-                                    .addComponent(jftUf, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(jftUf, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnNovo)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnPesquisar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnExcluir)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnAlterar)
+                        .addGap(18, 18, 18)
+                        .addComponent(jbSalvar4))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jftCidade, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -368,6 +396,7 @@ public class cadastroClienteView extends javax.swing.JFrame {
                             .addComponent(jftLimiteCredito, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -424,14 +453,15 @@ public class cadastroClienteView extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jftCidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jftLimiteCredito, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnExcluir)
                     .addComponent(btnPesquisar)
                     .addComponent(btnAlterar)
                     .addComponent(btnNovo)
                     .addComponent(jbSalvar4))
-                .addGap(15, 15, 15))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE))
         );
 
         pack();
@@ -462,16 +492,13 @@ public class cadastroClienteView extends javax.swing.JFrame {
     }//GEN-LAST:event_jftLimiteCreditoKeyPressed
 
     private void jftCepFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jftCepFocusLost
-         // trim() remove espaços em branco do início e fim.
-        // isEmpty() verifica se sobrou algo escrito.
-        // Só busca se o usuário realmente digitou alguma coisa.
         if (!jftCep.getText().trim().isEmpty()) {
             buscarCep();
         }
     }//GEN-LAST:event_jftCepFocusLost
 
     private void jtNomeCompletoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jtNomeCompletoKeyPressed
-        if (evt.getExtendedKeyCode() == KeyEvent.VK_ENTER){
+        if (evt.getExtendedKeyCode() == KeyEvent.VK_ENTER) {
             jftCpf.requestFocus();
         }
     }//GEN-LAST:event_jtNomeCompletoKeyPressed
@@ -486,125 +513,136 @@ public class cadastroClienteView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jtEmailKeyPressed
 
-    private void jbSalvar4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbSalvar4ActionPerformed
+    private void jbSalvar4ActionPerformed(java.awt.event.ActionEvent evt) {
         try {
-        Cadastro cadastro = new Cadastro();
-        cadastro.setNomeCad(jtNomeCompleto.getText().trim());
-        cadastro.setCpf(jftCpf.getText().trim());
-        cadastro.SetSexo(jcGenero.getSelectedItem().toString());
-        cadastro.setEmail(jtEmail.getText().trim());
+            Cadastro cadastro = new Cadastro();
+            cadastro.setNomeCad(jtNomeCompleto.getText().trim());
+            cadastro.setCpf(jftCpf.getText().trim());
+            cadastro.SetSexo(jcGenero.getSelectedItem().toString());
+            cadastro.setEmail(jtEmail.getText().trim());
 
-        if (jtIdCodigo.getText().trim().isEmpty()){
+            CadastroDao cadastroDao = new CadastroDao();
 
-            CadastroDao.Inserir(cadastro);
-            JOptionPane.showMessageDialog(this, "Cliente inserido com sucesso!");
-        } else {
-            cadastro.setIdCad(Integer.parseInt(jtIdCodigo.getText().trim()));
-            CadastroDao.alterar(cadastro);
-            JOptionPane.showMessageDialog(this, "Cliente alterado com sucesso!");
-        }
+            if (jtIdCodigo.getText().trim().isEmpty()) {
+                // Otimização pedida pelo professor
+                cadastroDao.inserir(cadastro);
+                JOptionPane.showMessageDialog(this, "Cliente inserido com sucesso!");
+            } else {
+                cadastro.setIdCad(Integer.parseInt(jtIdCodigo.getText().trim()));
+                cadastroDao.alterar(cadastro);
+                JOptionPane.showMessageDialog(this, "Cliente alterado com sucesso!");
+            }
 
-        limparCampos();
-    } catch (Exception ex) {
+            limparCampos();
+            atualizaTabela(cadastroDao);
+        } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Erro ao salvar cadastro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-
+    }
 
     private void btnAlterarActionPerformed(java.awt.event.ActionEvent evt) {
-    try {
-        // Verifica se há um ID preenchido antes de permitir alterar
-        if (jtIdCodigo.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o ID/Código para alterar.", "Aviso", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        try {
+            if (jtIdCodigo.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Informe o ID/Código para alterar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-        jbSalvar4ActionPerformed(evt); // Reutiliza o método de salvar para alterar
+            jbSalvar4ActionPerformed(evt);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao alterar cliente: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
+
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {
-    try {
-        if (jtIdCodigo.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o ID/Código para excluir.", "Aviso", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        try {
+            if (jtIdCodigo.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Informe o ID/Código para excluir.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-        int id = Integer.parseInt(jtIdCodigo.getText().trim());
-        int confirmacao = JOptionPane.showConfirmDialog(this, 
-                "Tem certeza que deseja excluir o cliente ID " + id + "?", 
-                "Confirmar Exclusão", JOptionPane.YES_NO_OPTION);
+            int id = Integer.parseInt(jtIdCodigo.getText().trim());
+            int confirmacao = JOptionPane.showConfirmDialog(this, 
+                    "Tem certeza que deseja excluir o cliente ID " + id + "?", 
+                    "Confirmar Exclusão", JOptionPane.YES_NO_OPTION);
 
-        if (confirmacao == JOptionPane.YES_OPTION) {
-            CadastroDao cadastroDao = new CadastroDao();
-            cadastroDao.excluirID(id);
-            JOptionPane.showMessageDialog(this, "Cliente excluído com sucesso!");
-            limparCampos();
+            if (confirmacao == JOptionPane.YES_OPTION) {
+                CadastroDao cadastroDao = new CadastroDao();
+                cadastroDao.excluirID(id);
+                JOptionPane.showMessageDialog(this, "Cliente excluído com sucesso!");
+                limparCampos();
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao excluir cliente: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Erro ao excluir cliente: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
     }
 
     private void btnPesquisarActionPerformed(java.awt.event.ActionEvent evt) {
-    try {
-        String busca = jtNomeCompleto.getText().trim();
-        CadastroDao cadastroDao = new CadastroDao();
-        java.util.ArrayList<Cadastro> lista = cadastroDao.consultar(busca);
+        try {
+            String busca = jtNomeCompleto.getText().trim();
+            CadastroDao cadastroDao = new CadastroDao();
+            java.util.ArrayList<Cadastro> lista = cadastroDao.consultar(busca);
 
-        if (!lista.isEmpty()) {
-            Cadastro c = lista.get(0); // Exibe o primeiro encontrado
-            jtIdCodigo.setText(String.valueOf(c.getIdCad()));
-            jtNomeCompleto.setText(c.getNomeCad());
-            jftCpf.setText(c.getCpf());
-            jtEmail.setText(c.getEmail());
-            jcGenero.setSelectedItem(c.getSexo());
-        } else {
-            JOptionPane.showMessageDialog(this, "Nenhum cadastro encontrado com este nome.", "Busca", JOptionPane.INFORMATION_MESSAGE);
+            if (!lista.isEmpty()) {
+                Cadastro c = lista.get(0);
+                jtIdCodigo.setText(String.valueOf(c.getIdCad()));
+                jtNomeCompleto.setText(c.getNomeCad());
+                jftCpf.setText(c.getCpf());
+                jtEmail.setText(c.getEmail());
+                jcGenero.setSelectedItem(c.getSexo());
+            } else {
+                JOptionPane.showMessageDialog(this, "Nenhum cadastro encontrado com este nome.", "Busca", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao buscar cadastro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Erro ao buscar cadastro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
     }
 
     private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {
-    limparCampos();
-}
+        limparCampos();
+    }
 
-private void limparCampos() {
-    jtIdCodigo.setText("");
-    jtNomeCompleto.setText("");
-    jftCpf.setText("");
-    jftDataNascimento.setText("");
-    jtEmail.setText("");
-    jftTelefone.setText("");
-    jcGenero.setSelectedIndex(0);
-    jcEstadoCivil.setSelectedIndex(0);
-    jftCep.setText("");
-    jftRua.setText("");
-    jftBairro.setText("");
-    jftCidade.setText("");
-    jftUf.setText("");
-    jftLimiteCredito.setText("");
-    jtNomeCompleto.requestFocus();
-}
-}
-}
-}
+    private void atualizaTabela(CadastroDao cadastroDao) {
+        try {
+            limparTabela();
 
+            ArrayList<Cadastro> listaCadastros = cadastroDao.consultar();
+            DefaultTableModel modeloTabela = (DefaultTableModel) Tb01.getModel();
 
+            for (Cadastro cadastro : listaCadastros) {
+                modeloTabela.addRow(new String[]{
+                    Integer.toString(cadastro.getIdCad()),
+                    cadastro.getNomeCad(),
+                    cadastro.getCpf(),
+                    cadastro.getEmail(),
+                    cadastro.getSexo()
+                });
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao atualizar tabela: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
+    private void limparTabela() {
+        DefaultTableModel modeloTabela = (DefaultTableModel) Tb01.getModel();
+        modeloTabela.setRowCount(0);
+    }
 
+    private void Tb01MouseClicked(java.awt.event.MouseEvent evt) {                                  
+        int linhaSelecionada = Tb01.getSelectedRow();
 
-
-
-
-    }//GEN-LAST:event_jbSalvar4ActionPerformed
+        if (linhaSelecionada != -1) {
+            jtIdCodigo.setText(Tb01.getValueAt(linhaSelecionada, 0).toString());
+            jtNomeCompleto.setText(Tb01.getValueAt(linhaSelecionada, 1).toString());
+            jftCpf.setText(Tb01.getValueAt(linhaSelecionada, 2).toString());
+            jtEmail.setText(Tb01.getValueAt(linhaSelecionada, 3).toString());
+            jcGenero.setSelectedItem(Tb01.getValueAt(linhaSelecionada, 4).toString());
+        }
+    }
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -615,19 +653,19 @@ private void limparCampos() {
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
 
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new cadastroClienteView().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable Tb01;
     private javax.swing.JButton btnAlterar;
     private javax.swing.JButton btnExcluir;
     private javax.swing.JButton btnNovo;
     private javax.swing.JButton btnPesquisar;
     private javax.swing.JFormattedTextField jFormattedTextField1;
     private javax.swing.JFormattedTextField jFormattedTextField6;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton jbSalvar4;
     private javax.swing.JComboBox<String> jcEstadoCivil;
     private javax.swing.JComboBox<String> jcGenero;

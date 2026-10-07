@@ -1,2 +1,6 @@
-/home/igor/NetBeansProjects/aula_conexaoBanco/src/main/java/com/mycompany/aula_conexaobanco/Aula_conexaoBanco.java
-/home/igor/NetBeansProjects/aula_conexaoBanco/src/main/java/view/cadastroView.java
+C:\Users\igoor\OneDrive\Documentos\conexao-mysql\conexao-java-mysql\src\main\java\com\mycompany\aula_conexaobanco\Aula_conexaoBanco.java
+C:\Users\igoor\OneDrive\Documentos\conexao-mysql\conexao-java-mysql\src\main\java\dao\CadastroDao.java
+C:\Users\igoor\OneDrive\Documentos\conexao-mysql\conexao-java-mysql\src\main\java\dao\ConexaoBanco.java
+C:\Users\igoor\OneDrive\Documentos\conexao-mysql\conexao-java-mysql\src\main\java\dao\DaoGenerica.java
+C:\Users\igoor\OneDrive\Documentos\conexao-mysql\conexao-java-mysql\src\main\java\modelo\Cadastro.java
+C:\Users\igoor\OneDrive\Documentos\conexao-mysql\conexao-java-mysql\src\main\java\view\cadastroClienteView.java
