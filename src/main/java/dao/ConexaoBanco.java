@@ -20,10 +20,10 @@ public class ConexaoBanco {
     private Connection conexao;
     
     public ConexaoBanco(){
-        this.servidor = "177.220.142.20";
-        this.banco = "grupo04_igor";
-        this.usuario = "grupo04";
-        this.senha = "woyOlFfNNOdBOCE9@";
+        this.servidor = "";
+        this.banco = "";
+        this.usuario = "";
+        this.senha = "";
     }
     
 public boolean conectar(){
